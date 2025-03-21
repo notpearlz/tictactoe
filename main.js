@@ -76,39 +76,57 @@ function consoleGame(){
     // player2.setName(prompt("Please enter a name for Player 2"));
 
 
+    const gameMode = prompt("Gamemode \n(1) player vs player \n(2)  player vs bot \n(3) bot vs bot");
 
-
-
+    
     for(let i = 0; i < 9; i++){
         console.log(playerTurn.getName() + "'s Turn to place " + playerTurn.getMarker());
         
-
+        if(gameMode == 0){
+            break;
+        }
         if (playerTurn == player1){
 
-            // do {
-            //     const row = prompt("row")
-            //     const column = prompt("col")
-            //     if (board[row][column].setValue(playerTurn.getMarker()) != -1){
-            //         break;
-            //     };
-            // } while(true);
-
-            do {
-                const row = Math.floor(Math.random() * 3);
-                const column = Math.floor(Math.random() * 3);
-                if (board[row][column].setValue(playerTurn.getMarker()) != -1){
-                    break;
-                };
-            } while(true);
+            if (gameMode == 3){
+                do {
+                    const row = Math.floor(Math.random() * 3);
+                    const column = Math.floor(Math.random() * 3);
+                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                        break;
+                    };
+                } while(true);
+            } else {
+                do {
+                    const row = prompt("row")
+                    const column = prompt("col")
+                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                        break;
+                    };
+                } while(true);
+            }
+            
         }
         else if (playerTurn == player2) {
-            do {
-                const row = Math.floor(Math.random() * 3);
-                const column = Math.floor(Math.random() * 3);
-                if (board[row][column].setValue(playerTurn.getMarker()) != -1){
-                    break;
-                };
-            } while(true);
+            if (gameMode == 1){
+                do {
+                    const row = prompt("row")
+                    const column = prompt("col")
+                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                        break;
+                    };
+                } while(true);
+            } else {
+                do {
+                    const row = Math.floor(Math.random() * 3);
+                    const column = Math.floor(Math.random() * 3);
+                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                        break;
+                    };
+                } while(true);
+            }
+
+
+            
         }
         game.printBoard();
 
