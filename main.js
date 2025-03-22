@@ -3,12 +3,50 @@ function gameBoard(){
     
     const printBoard = () => {
         board.forEach((x) => {
-            console.log(` [${x[0].getValue()}] [${x[1].getValue()}] [${x[2].getValue()}]`); 
+            console.log(
+                `[${x[0].getValue() ?? " "}] [${x[1].getValue() ?? " "}] [${x[2].getValue() ?? " "}]`
+            );
             console.log("\n");
         })
         console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
     }
+
+    const boardFull = () => {
+        for (let i = 0; i < 3; i++){
+            for (let j = 0; j < 3; j++){
+                if(board[i][j].getValue() == undefined){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    const setBoard = (row, col, newValue) => {
+        if (!validMove(row, col) || board[row][col].getValue() != undefined){
+            return -1;
+        }
+        board[row][col].setValue(newValue);
+    }
+
+    const getBoard = (row, col) => {
+        if (!validMove(row, col)){
+            return -1;
+        }
+        return board[row][col].getValue();
+    }
+
+    const validMove = (row, col) => {
+        if (row > 2 || col > 2){
+            return false;
+        } else if (row < 0 || col < 0){
+            return false;
+        }
+        
+        return true;
+    }
+
 
 
     for (let i = 0; i < 3; i++){
@@ -20,7 +58,7 @@ function gameBoard(){
 
     
 
-    return {board, printBoard};
+    return {printBoard, getBoard, setBoard, boardFull};
 }
 
 
@@ -29,7 +67,7 @@ function cell(){
     let value;
 
     const getValue = () => {
-        return value == undefined ? " " : value;
+        return value;
     }
     const setValue = (newValue) => {
         if (value == undefined){
@@ -64,7 +102,6 @@ function player(newName, newMarker){
 
 function consoleGame(){
     const game = gameBoard();
-    const board = game.board;
 
 
     const player1 = player("Player1", "X");
@@ -76,22 +113,46 @@ function consoleGame(){
     // player2.setName(prompt("Please enter a name for Player 2"));
 
 
-    const gameMode = prompt("Gamemode \n(1) player vs player \n(2)  player vs bot \n(3) bot vs bot");
+    const gameMode = parseInt(prompt("Gamemode \n(1) player vs player \n(2)  player vs bot \n(3) bot vs bot"));
 
-    
-    for(let i = 0; i < 9; i++){
+    if(gameMode == 1){
+        let player1Name;
+        let player2Name;
+
+        do{
+            player1Name = prompt("Player1 Name");
+        } while (player1Name == undefined)
+        do{
+            player2Name = prompt("Player2 Name");
+        } while (player2Name == undefined)
+        player1.setName(player1Name);
+        player2.setName(player2Name);
+
+    } else if(gameMode == 2){
+        let player1Name;
+
+        do{
+            player1Name = prompt("Player1 Name");
+        } while (player1Name == undefined)
+        player1.setName(player1Name);
+
+    } else if(gameMode == 3) {
+        console.log("Bot match");
+    } else {
+        return;
+    }
+
+    while(true){        
+
         console.log(playerTurn.getName() + "'s Turn to place " + playerTurn.getMarker());
-        
-        if(gameMode == 0){
-            break;
-        }
+
         if (playerTurn == player1){
 
             if (gameMode == 3){
                 do {
                     const row = Math.floor(Math.random() * 3);
                     const column = Math.floor(Math.random() * 3);
-                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                    if (game.setBoard(row,column, playerTurn.getMarker()) != -1){
                         break;
                     };
                 } while(true);
@@ -99,7 +160,7 @@ function consoleGame(){
                 do {
                     const row = prompt("row")
                     const column = prompt("col")
-                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                    if (game.setBoard(row,column, playerTurn.getMarker()) != -1){
                         break;
                     };
                 } while(true);
@@ -111,7 +172,7 @@ function consoleGame(){
                 do {
                     const row = prompt("row")
                     const column = prompt("col")
-                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                    if (game.setBoard(row,column, playerTurn.getMarker()) != -1){
                         break;
                     };
                 } while(true);
@@ -119,7 +180,7 @@ function consoleGame(){
                 do {
                     const row = Math.floor(Math.random() * 3);
                     const column = Math.floor(Math.random() * 3);
-                    if (board[row][column].setValue(playerTurn.getMarker()) != -1){
+                    if (game.setBoard(row,column, playerTurn.getMarker()) != -1){
                         break;
                     };
                 } while(true);
@@ -133,7 +194,10 @@ function consoleGame(){
         if (checkWin()){
             console.log(playerTurn.getName() + " HAS WON THE GAME!");
             break;
-        } 
+        } else if(game.boardFull()){
+            console.log("TIE");
+            break;
+        }
         playerTurn = playerTurn === player1 ? player2 : player1;
     }
 
@@ -147,7 +211,8 @@ function consoleGame(){
             values[i] = "";
             
             for(let j = 0; j < 3; j++){
-                values[i] += (board[j][i].getValue());
+                values[i] += game.getBoard(j,i) == undefined ? " " : game.getBoard(j,i);
+
             }
         }
         if(hasWon(values)){
@@ -160,7 +225,7 @@ function consoleGame(){
             values[i] = "";
 
             for(let j = 0; j < 3; j++){
-                values[i] += (board[i][j].getValue());
+                values[i] += game.getBoard(i,j) == undefined ? " " : game.getBoard(i,j);
             }
         }
         if(hasWon(values)){
@@ -172,8 +237,7 @@ function consoleGame(){
         values[0] = "";
 
         for(let i = 0; i < 3; i++){
-
-            values[0] += (board[i][i].getValue());
+            values[0] += game.getBoard(i,i) == undefined ? " " : game.getBoard(i,i);
         }
         if(hasWon(values)){
             winner = true;
@@ -185,7 +249,7 @@ function consoleGame(){
 
         for(let i = 0; i < 3; i++){
 
-            values[0] += (board[i][2-i].getValue());
+            values[0] += game.getBoard(i,2-i) == undefined ? " " : game.getBoard(i,2-i);
         }
         if(hasWon(values)){
             winner = true;
@@ -205,8 +269,9 @@ function consoleGame(){
 
         return winner;
     }
-}
 
+
+}
 
 
 consoleGame();
