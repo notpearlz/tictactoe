@@ -274,4 +274,27 @@ function consoleGame(){
 }
 
 
-consoleGame();
+function ScreenController(){
+    let gameMode; 
+    const gamemodeSelector = (function() {
+        const buttons = document.querySelectorAll("#gamemodes button");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", () => {
+                gameMode = button.getAttribute("id");
+
+                console.log(gameMode);
+            })
+        })
+
+
+    })();
+
+
+}
+
+
+
+ScreenController();
+//consoleGame();
+
