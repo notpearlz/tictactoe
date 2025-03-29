@@ -47,6 +47,22 @@ function gameBoard(){
         return true;
     }
 
+    const resetBoard = function(){
+        for (let i = 0; i < 3; i++){
+            for (let j = 0; j < 3; j++){
+                board.pop()
+
+            }
+        }
+
+        for (let i = 0; i < 3; i++){
+            board.push([]);
+            for (let j = 0; j < 3; j++){
+                board[i].push(cell());
+            }
+        }
+    }
+
 
 
     for (let i = 0; i < 3; i++){
@@ -58,7 +74,7 @@ function gameBoard(){
 
     
 
-    return {printBoard, getBoard, setBoard, boardFull};
+    return {printBoard, getBoard, setBoard, boardFull, resetBoard};
 }
 
 
@@ -84,6 +100,7 @@ function cell(){
 function player(newName, newMarker){
     let name = newName;
     let marker = newMarker;
+    let bot = false;
 
 
     const getName = () => {
@@ -97,8 +114,87 @@ function player(newName, newMarker){
         name = newName;
     }
 
-    return {setName,getName, getMarker};
+    const isBot = () => {
+        return bot;
+    }
+
+    const toggleBot = () => {
+        bot = !bot;
+    }
+
+    return {setName,getName, getMarker, isBot, toggleBot};
 }
+
+
+
+function checkWin(game){
+    let winner = false;
+
+    //Check Vertical Wins
+    let values = [];
+    for(let i = 0; i < 3; i++){
+        values[i] = "";
+        
+        for(let j = 0; j < 3; j++){
+            values[i] += game.getBoard(j,i) == undefined ? " " : game.getBoard(j,i);
+
+        }
+    }
+    if(hasWon(values)){
+        winner = true;
+    }
+
+    //Check Horizontal Wins
+    values = [];
+    for(let i = 0; i < 3; i++){
+        values[i] = "";
+
+        for(let j = 0; j < 3; j++){
+            values[i] += game.getBoard(i,j) == undefined ? " " : game.getBoard(i,j);
+        }
+    }
+    if(hasWon(values)){
+        winner = true;
+    }
+
+    //Check Diagonal Wins
+    values = [];
+    values[0] = "";
+
+    for(let i = 0; i < 3; i++){
+        values[0] += game.getBoard(i,i) == undefined ? " " : game.getBoard(i,i);
+    }
+    if(hasWon(values)){
+        winner = true;
+    }
+
+    //Check Other Diagonal Win
+    values = [];
+    values[0] = "";
+
+    for(let i = 0; i < 3; i++){
+
+        values[0] += game.getBoard(i,2-i) == undefined ? " " : game.getBoard(i,2-i);
+    }
+    if(hasWon(values)){
+        winner = true;
+    }
+
+
+    function hasWon(values){
+        for(let i = 0; i < values.length; i++){
+            if(values[i][0] == values[i][1] && values[i][0] == values[i][2] && values[i][0] != " "){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+    return winner;
+}
+
 
 function consoleGame(){
     const game = gameBoard();
@@ -191,7 +287,7 @@ function consoleGame(){
         }
         game.printBoard();
 
-        if (checkWin()){
+        if (checkWin(game)){
             console.log(playerTurn.getName() + " HAS WON THE GAME!");
             break;
         } else if(game.boardFull()){
@@ -202,97 +298,140 @@ function consoleGame(){
     }
 
 
-    function checkWin(){
-        let winner = false;
-
-        //Check Vertical Wins
-        let values = [];
-        for(let i = 0; i < 3; i++){
-            values[i] = "";
-            
-            for(let j = 0; j < 3; j++){
-                values[i] += game.getBoard(j,i) == undefined ? " " : game.getBoard(j,i);
-
-            }
-        }
-        if(hasWon(values)){
-            winner = true;
-        }
-
-        //Check Horizontal Wins
-        values = [];
-        for(let i = 0; i < 3; i++){
-            values[i] = "";
-
-            for(let j = 0; j < 3; j++){
-                values[i] += game.getBoard(i,j) == undefined ? " " : game.getBoard(i,j);
-            }
-        }
-        if(hasWon(values)){
-            winner = true;
-        }
-
-        //Check Diagonal Wins
-        values = [];
-        values[0] = "";
-
-        for(let i = 0; i < 3; i++){
-            values[0] += game.getBoard(i,i) == undefined ? " " : game.getBoard(i,i);
-        }
-        if(hasWon(values)){
-            winner = true;
-        }
-
-        //Check Other Diagonal Win
-        values = [];
-        values[0] = "";
-
-        for(let i = 0; i < 3; i++){
-
-            values[0] += game.getBoard(i,2-i) == undefined ? " " : game.getBoard(i,2-i);
-        }
-        if(hasWon(values)){
-            winner = true;
-        }
-
-
-        function hasWon(values){
-            for(let i = 0; i < values.length; i++){
-                if(values[i][0] == values[i][1] && values[i][0] == values[i][2] && values[i][0] != " "){
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-
-        return winner;
-    }
+    
 
 
 }
 
 
-function ScreenController(){
-    let gameMode; 
-    const gamemodeSelector = (function() {
-        const buttons = document.querySelectorAll("#gamemodes button");
 
+const ScreenController = function(){
+    let gameMode; 
+
+    const game = gameBoard();
+    const player1 = player("Player1", "X");
+    const player2 = player("Player2", "O");
+    let playerTurn = player1;
+    let winner;
+
+    const board = document.getElementById("board");
+    const gamemodes = document.getElementById("gamemodes")
+    const restart = document.getElementById("restart");
+
+    restart.addEventListener("click", ()=>{
+        resetGame();
+    })
+
+    const resetGame  = function(){
+        gameMode = undefined;
+
+        game.resetBoard();
+        playerTurn = player1;
+        winner = undefined;
+
+
+
+        restart.classList.add("disabled"); //disable
+
+        gamemodes.classList.remove("disabled"); //enable
+        board.classList.add("disabled"); //disable
+
+        // Reset player bots if they were set
+        if (player1.isBot()) player1.toggleBot();
+        if (player2.isBot()) player2.toggleBot();
+
+    }
+
+    //Gamemode selector
+    const gamemodeSelector = () => {
+        const buttons = document.querySelectorAll("#gamemodes button");
         buttons.forEach(button => {
             button.addEventListener("click", () => {
                 gameMode = button.getAttribute("id");
-
                 console.log(gameMode);
+                gamemodes.classList.add("disabled"); //disable
+                board.classList.remove("disabled"); //enable
+    
+                //Create bots
+                if(gameMode == "pvb"){
+                    player2.toggleBot();
+                } else if (gameMode == "bvb"){
+                    player1.toggleBot();
+                    player2.toggleBot();
+                }
+
+                loadBoard();
             })
         })
+    }
+    
+
+    const nextTurn = function(){
+        //updates board
+        loadBoard();
+
+        //checks if someone won
+        if(checkWin(game)){
+            winner = playerTurn;
+            console.log(playerTurn.getName() + " WON")
+            restart.classList.toggle("disabled");
+        } else if(game.boardFull()){
+            winner = "Tie";
+            console.log("TIE");
+            restart.classList.toggle("disabled");
+        }
 
 
-    })();
+        //switches turn
+        playerTurn = playerTurn === player1 ? player2 : player1;
+
+        if(playerTurn.isBot()){
+            if(winner){ return }
+            do {
+                const row = Math.floor(Math.random() * 3);
+                const column = Math.floor(Math.random() * 3);
+                if (game.setBoard(row,column, playerTurn.getMarker()) != -1){
+                    break;
+                };
+            } while(true);
+            nextTurn();
+        }
+
+    }
+    //Load Board 
+    const loadBoard = function(){
+        board.innerHTML = "";
+        for(let i = 0; i < 3; i++) {
+            for(let j = 0; j < 3; j++) {
+                const box = document.createElement("div");
+                box.classList.add("box");
+                box.textContent = game.getBoard(i,j);
+    
+                
+                
+                box.addEventListener("click", () => {
+                    if(winner){ return }
+                    game.setBoard(i,j,playerTurn.getMarker())
+
+                    nextTurn();
+                });
+                
+                
+    
+                board.append(box);
+            }
+        }
+    }
 
 
+    
+
+
+
+
+    //Game Start
+    gamemodeSelector();
 }
-
 
 
 ScreenController();

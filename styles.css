@@ -18,6 +18,7 @@ header,
 footer{
     display: flex;
     justify-content: center;
+    background-color: #d5efe6;
     padding: 10px 0px;
 }
 
@@ -38,12 +39,10 @@ main {
 
 .gamemodes {
     display: flex;
+    position: absolute;
     list-style: none;
     gap: 30px;
-}
-
-.gamemodes li {
-    
+    transition: opacity, .5s;
 }
 
 .gamemodes li button {
@@ -52,10 +51,38 @@ main {
     
     border: 1px solid #000000;
     border-radius: 20%;
+    background-color: #cff1e5;
     font-size: 1.5rem;
+    transition: background-color, .5s;
     
 }
 
 .gamemodes li button:hover {
-    background-color: #c3bdbd;
+    background-color: #9ce9ce;
+}
+.gamemodes li button:active {
+    background-color: #4be9b2;
+}
+
+.disabled,
+#board.disabled {
+    display: none;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+    grid-template-rows:repeat(3, 200px);
+}
+
+
+.box {
+    font-size: 10rem;
+    text-align: center;
+    border: 1px solid #000000;
+}
+
+
+#restart {
+    position: absolute;
 }
