@@ -48,15 +48,9 @@ function gameBoard(){
     }
 
     const resetBoard = function(){
-        for (let i = 0; i < 3; i++){
-            for (let j = 0; j < 3; j++){
-                board.pop()
-
-            }
-        }
 
         for (let i = 0; i < 3; i++){
-            board.push([]);
+            board[i] = [];
             for (let j = 0; j < 3; j++){
                 board[i].push(cell());
             }
@@ -313,7 +307,12 @@ const ScreenController = function(){
     const player2 = player("Player2", "O");
     let playerTurn = player1;
     let winner;
+    let player1Score = 0;
+    let player2Score = 0;
 
+
+
+    const screen = document.querySelectorAll("#screen h1")
     const board = document.getElementById("board");
     const gamemodes = document.getElementById("gamemodes")
     const restart = document.getElementById("restart");
@@ -332,6 +331,7 @@ const ScreenController = function(){
 
 
         restart.classList.add("disabled"); //disable
+        screen[1].innerHTML = "";
 
         gamemodes.classList.remove("disabled"); //enable
         board.classList.add("disabled"); //disable
@@ -353,14 +353,19 @@ const ScreenController = function(){
                 board.classList.remove("disabled"); //enable
     
                 //Create bots
-                if(gameMode == "pvb"){
+                if(gameMode == "pvp"){
+                    loadBoard();
+                }
+                else if(gameMode == "pvb"){
                     player2.toggleBot();
+                    loadBoard();
                 } else if (gameMode == "bvb"){
                     player1.toggleBot();
                     player2.toggleBot();
+                    nextTurn();
                 }
+                screen[1].innerHTML = playerTurn.getName() + "'s Turn";
 
-                loadBoard();
             })
         })
     }
@@ -375,15 +380,27 @@ const ScreenController = function(){
             winner = playerTurn;
             console.log(playerTurn.getName() + " WON")
             restart.classList.toggle("disabled");
+            if(winner == player1){
+                player1Score++;
+                screen[0].innerHTML = "X - " + player1Score;
+
+            } else if (winner == player2){
+                player2Score++;
+                screen[2].innerHTML = "O - " + player2Score;
+            }
+            screen[1].innerHTML = winner.getName() + " WON!";
+
         } else if(game.boardFull()){
             winner = "Tie";
             console.log("TIE");
+            screen[1].innerHTML = "TIE";
             restart.classList.toggle("disabled");
         }
 
 
         //switches turn
         playerTurn = playerTurn === player1 ? player2 : player1;
+        screen[1].innerHTML = playerTurn.getName() + "'s Turn";
 
         if(playerTurn.isBot()){
             if(winner){ return }
@@ -394,7 +411,10 @@ const ScreenController = function(){
                     break;
                 };
             } while(true);
-            nextTurn();
+
+            setTimeout(() => {
+                nextTurn();
+            }, 500)
         }
 
     }
@@ -407,25 +427,21 @@ const ScreenController = function(){
                 box.classList.add("box");
                 box.textContent = game.getBoard(i,j);
     
-                
-                
                 box.addEventListener("click", () => {
-                    if(winner){ return }
-                    game.setBoard(i,j,playerTurn.getMarker())
+                    if(winner || playerTurn.isBot()){ return }
 
-                    nextTurn();
+                    if (game.setBoard(i,j,playerTurn.getMarker())!= -1){
+                        nextTurn();
+                    }
                 });
                 
+
                 
     
                 board.append(box);
             }
         }
     }
-
-
-    
-
 
 
 

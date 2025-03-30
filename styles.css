@@ -85,4 +85,12 @@ main {
 
 #restart {
     position: absolute;
+    background-color: #4be9b2;
+    font-size: 2rem;
+    padding: 20px;
+}
+
+#screen {
+    display: flex;
+    justify-content: space-around;
 }
